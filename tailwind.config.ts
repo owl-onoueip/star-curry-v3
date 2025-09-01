@@ -66,6 +66,10 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        "star-blue": "var(--star-blue)",
+        "star-golden": "var(--star-golden)",
+        "star-deep-blue": "var(--star-deep-blue)",
+        "star-red": "var(--star-red)",
       },
       keyframes: {
         "accordion-down": {
