@@ -1,7 +1,9 @@
 import { Switch, Route } from 'wouter';
 import { useState } from 'react';
+import { menuItems, menuCategoryGroups } from '../data/menu';
+import { getImageUrl } from '../utils/getImageUrl';
 
-// Header コンポーネント - モバイル対応版
+// Header コンポーネント - 既存のまま
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -92,39 +94,179 @@ function Header() {
   );
 }
 
-// Hero コンポーネント - モバイル対応版
+// Hero コンポーネント
 function Hero() {
   return (
     <section className="bg-gray-50 py-8 md:py-16">
       <div className="container mx-auto px-4 text-center">
-        {/* INDIAN NEPALI バッジ */}
         <div className="mb-6 md:mb-8">
           <span className="inline-block bg-blue-500 text-white px-6 md:px-8 py-2 md:py-3 rounded-full text-base md:text-lg font-semibold">
             ⭐ INDIAN NEPALI ⭐
           </span>
         </div>
         
-        {/* メインタイトル */}
         <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold text-gray-800 mb-6 md:mb-8">
           Restaurant & Bar
         </h1>
         
-        {/* 日本語説明 */}
         <p className="text-lg md:text-2xl lg:text-3xl text-gray-700 mb-4 md:mb-6">
           東川口の本格インドカレー・ネパール料理のSTARです。
         </p>
         
-        {/* サブテキスト */}
         <p className="text-base md:text-xl lg:text-2xl text-gray-600 mb-6 md:mb-8">
           本場のスパイス料理をお楽しみください。
         </p>
         
-        {/* 英語説明 */}
         <p className="text-sm md:text-lg lg:text-xl text-gray-500 italic">
           It is a star (STAR) of authentic Indian curry and Nepalese cuisine in Higashikawaguchi.
         </p>
       </div>
     </section>
+  );
+}
+
+// FOOD MENUページの実装
+function FoodMenu() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // カテゴリでフィルタリング
+  const filteredItems = selectedCategory 
+    ? menuItems.filter(item => item.category === selectedCategory)
+    : menuItems;
+
+  return (
+    <div className="min-h-screen bg-white">
+      <main className="container mx-auto px-4 py-8 md:py-16">
+        {/* ページタイトル */}
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">FOOD MENU</h1>
+          <p className="text-lg md:text-xl text-gray-600">136種類の豊富なメニューをお楽しみください</p>
+        </div>
+
+        {/* カテゴリグループナビゲーション */}
+        <div className="space-y-6 mb-8 md:mb-12">
+          {menuCategoryGroups.map((group) => (
+            <div key={group.name} className="text-center">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">{group.name}</h2>
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+                {group.categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(
+                      selectedCategory === category.id ? null : category.id
+                    )}
+                    className={`px-3 md:px-4 py-2 md:py-3 rounded-full font-semibold text-sm md:text-base transition-all duration-200 ${
+                      selectedCategory === category.id
+                        ? `${group.color} ${group.textColor} shadow-lg scale-105`
+                        : `bg-gray-100 text-gray-700 hover:bg-gray-200 ${group.hoverColor} hover:text-white`
+                    }`}
+                  >
+                    {category.displayName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 全カテゴリ表示ボタン */}
+        <div className="text-center mb-8">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-base md:text-lg transition-all duration-200 ${
+              selectedCategory === null
+                ? 'bg-star-golden text-white shadow-lg scale-105'
+                : 'bg-gray-200 text-gray-700 hover:bg-star-golden hover:text-white'
+            }`}
+          >
+            🍽️ 全メニュー表示 (136品)
+          </button>
+        </div>
+
+        {/* 選択中のカテゴリ表示 */}
+        {selectedCategory && (
+          <div className="text-center mb-6">
+            <p className="text-lg md:text-xl text-gray-600">
+              選択中: <span className="font-bold text-gray-800">
+                {menuCategoryGroups
+                  .flatMap(group => group.categories)
+                  .find(cat => cat.id === selectedCategory)?.displayName
+                }
+              </span>
+              ({filteredItems.length}品)
+            </p>
+          </div>
+        )}
+
+        {/* メニューアイテム表示 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            >
+              {/* 料理画像 */}
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src={getImageUrl(item.id, item.image)}
+                  alt={item.name}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </div>
+              
+              {/* 料理情報 */}
+              <div className="p-4 md:p-6">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2">{item.name}</h3>
+                <p className="text-sm md:text-base text-gray-600 mb-3 leading-relaxed">
+                  {item.description}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-xl md:text-2xl font-bold text-star-golden">
+                    ¥{item.price.toLocaleString()}
+                  </span>
+                  <span className="text-xs md:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {menuCategoryGroups
+                      .flatMap(group => group.categories)
+                      .find(cat => cat.id === item.category)?.icon
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* メニュー統計情報 */}
+        <div className="mt-12 md:mt-16 text-center bg-gray-50 rounded-lg p-6 md:p-8">
+          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">メニュー統計</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-star-golden">{menuItems.length}</div>
+              <div className="text-sm md:text-base text-gray-600">総メニュー数</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-star-golden">
+                {menuCategoryGroups.flatMap(group => group.categories).length}
+              </div>
+              <div className="text-sm md:text-base text-gray-600">カテゴリ数</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-star-golden">
+                ¥{Math.min(...menuItems.map(item => item.price)).toLocaleString()}
+              </div>
+              <div className="text-sm md:text-base text-gray-600">最低価格</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-star-golden">
+                ¥{Math.max(...menuItems.map(item => item.price)).toLocaleString()}
+              </div>
+              <div className="text-sm md:text-base text-gray-600">最高価格</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -153,17 +295,6 @@ function Services() {
       <main className="container mx-auto px-4 py-8 md:py-16">
         <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6 md:mb-8">SERVICES</h1>
         <p className="text-center text-gray-600 mb-6 md:mb-8">サービス案内ページ</p>
-      </main>
-    </div>
-  );
-}
-
-function FoodMenu() {
-  return (
-    <div className="min-h-screen bg-white">
-      <main className="container mx-auto px-4 py-8 md:py-16">
-        <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6 md:mb-8">FOOD MENU</h1>
-        <p className="text-center text-gray-600 mb-6 md:mb-8">136種類の豊富なメニューを準備中です</p>
       </main>
     </div>
   );
