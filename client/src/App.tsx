@@ -1,9 +1,24 @@
 import { Switch, Route } from 'wouter';
 import { useState } from 'react';
-import { menuItems, menuCategoryGroups } from '../data/menu';
-import { getImageUrl } from '../utils/getImageUrl';
 
-// Header コンポーネント - 既存のまま
+// メニューデータとユーティリティを直接インポート
+import { menuItems, menuCategoryGroups } from './data/menu';
+import { imageMapping } from './data/imageMapping';
+
+// 画像URL取得関数をここで定義
+function getImageUrl(itemId: string, fallbackUrl: string): string {
+  if (imageMapping[itemId]) {
+    const mappedFile = imageMapping[itemId];
+    const imageUrl = `/api/assets/${mappedFile}`;
+    console.log(`[getImageUrl] ${itemId} -> ${mappedFile} (URL: ${imageUrl})`);
+    return imageUrl;
+  }
+  
+  console.log(`[getImageUrl] ${itemId} -> fallback: ${fallbackUrl}`);
+  return fallbackUrl;
+}
+
+// Header コンポーネント
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
